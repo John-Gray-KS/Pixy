@@ -32,9 +32,12 @@ void setup() {
 
   // Set the speed to start, from 0 (off) to 255 (max speed)
   myMotor->setSpeed(150);
+  myOtherMotor->setSpeed(150);
   myMotor->run(FORWARD);
-  // turn on motor
+  myOtherMotor->run(FORWARD);
+  // turn on motors
   myMotor->run(RELEASE);
+  myOtherMotor->run(RELEASE);
 
   // Setup for other motor
  // Set the speed to start, from 0 (off) to 255 (max speed)
