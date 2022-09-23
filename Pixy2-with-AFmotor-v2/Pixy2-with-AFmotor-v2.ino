@@ -15,13 +15,19 @@
 
 #include <Pixy2.h>
 #include <PIDLoop.h>
-#include <ZumoMotors.h>
+#include <Adafruit_MotorShield.h>
 
-// this limits how fast Zumo travels forward (400 is max possible for Zumo)
+// Create the motor shield object with the default I2C address
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+
+// Select which 'port' M1, M2, M3 or M4. In this case, M1 & M3
+Adafruit_DCMotor *myMotor = AFMS.getMotor(1);
+Adafruit_DCMotor *myOtherMotor = AFMS.getMotor(3);
+
+// this limits how fast it travels forward (250 is max possible for Adafruit motor shield)
 #define MAX_TRANSLATE_VELOCITY  250
 
 Pixy2 pixy;
-// ZumoMotors motors;
 
 PIDLoop panLoop(350, 0, 600, true);
 PIDLoop tiltLoop(500, 0, 700, true);
@@ -31,11 +37,24 @@ PIDLoop translateLoop(400, 800, 300, false);
 void setup()
 {
   Serial.begin(115200);
-  Serial.print("Starting...\n");
-  
-  // initialize motor objects
-  motors.setLeftSpeed(0);
-  motors.setRightSpeed(0);
+  Serial.println("Adafruit Motorshield v2 - DC Motor test!\n");
+  Serial.print("Starting PixyMon...\n");
+
+  if (!AFMS.begin()) {         // create with the default frequency 1.6KHz
+  // if (!AFMS.begin(1000)) {  // OR with a different frequency, say 1KHz
+    Serial.println("Could not find Motor Shield. Check wiring.");
+    while (1);
+  }
+  Serial.println("Motor Shield found.");
+
+  // Set the speed to start, from 0 (off) to 255 (max speed)
+  myMotor->setSpeed(150);
+  myOtherMotor->setSpeed(150);
+  myMotor->run(FORWARD);
+  myOtherMotor->run(FORWARD);
+  // turn on motors
+  myMotor->run(RELEASE);
+  myOtherMotor->run(RELEASE);
   
   // need to initialize pixy object
   pixy.init();
@@ -119,8 +138,11 @@ void loop()
     right = rotateLoop.m_command + translateLoop.m_command;
 
     // set wheel velocities
-    motors.setLeftSpeed(left);
-    motors.setRightSpeed(right);
+    //motors.setLeftSpeed(left);
+    //motors.setRightSpeed(right);
+    myMotor->setSpeed(left);
+    myOtherMotor->setSpeed(right);
+    
 
     // print the block we're tracking -- wait until end of loop to reduce latency
     block->print();
@@ -129,9 +151,9 @@ void loop()
   {
     rotateLoop.reset();
     translateLoop.reset();
-    motors.setLeftSpeed(0);
-    motors.setRightSpeed(0);
+    myMotor->setSpeed(0);
+    myOtherMotor->setSpeed(0);
+    
     index = -1; // set search state
   }
 }
-
