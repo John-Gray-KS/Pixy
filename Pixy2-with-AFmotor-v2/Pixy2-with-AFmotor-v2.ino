@@ -21,7 +21,7 @@
 #define MAX_TRANSLATE_VELOCITY  250
 
 Pixy2 pixy;
-ZumoMotors motors;
+// ZumoMotors motors;
 
 PIDLoop panLoop(350, 0, 600, true);
 PIDLoop tiltLoop(500, 0, 700, true);
